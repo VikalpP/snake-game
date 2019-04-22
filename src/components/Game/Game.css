@@ -1,0 +1,30 @@
+.row {
+    display: flex;
+    flex: 1;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    flex: 1;
+    border: 1px solid black;
+}
+
+.head {
+    background: rgb(153, 0, 255);
+}
+
+.tail {
+    background: rgb(216, 157, 255);
+}
+
+.apple {
+    background-color: red;
+}
+
+@media screen and (max-width: 480px) {
+    .cell {
+        width: 10px;
+        height: 10px;
+    }
+}
