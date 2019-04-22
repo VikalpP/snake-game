@@ -15,11 +15,12 @@ export default class Game extends Component {
 
     // Generate random direction
     getRandomDirection = () => {
-        switch (this.randomVal(0, 3)) {
+        const i = this.randomVal(0, 3);
+        switch (i) {
             case 0:
                 return Directions.LEFT;
             case 1:
-                return Directions.TOP;
+                return Directions.UP;
             case 2:
                 return Directions.RIGHT;
             case 3:
@@ -34,7 +35,7 @@ export default class Game extends Component {
         snake: {
             head: { x: 0, y: 0 },
             tail: [],
-            velocity: this.getRandomDirection(),
+            velocity: Directions.RIGHT,
             speed: this.props.speed
         }
     };
@@ -124,13 +125,13 @@ export default class Game extends Component {
         }));
     };
 
-    isWallHit = () => {
-        const snakeHead = this.state.snake.head;
+    willHitWall = () => {
+        const { head, velocity } = this.state.snake;
         return (
-            snakeHead.x < 0 ||
-            snakeHead.x > this.props.cols ||
-            snakeHead.y < 0 ||
-            snakeHead.y > this.props.rows
+            head.x + velocity.x < 0 ||
+            head.x + velocity.x > this.props.cols ||
+            head.y + velocity.y < 0 ||
+            head.y + velocity.y > this.props.rows
         );
     };
 
@@ -144,7 +145,19 @@ export default class Game extends Component {
             this.KeyPressed(e);
         });
 
-        this.gameLoop();
+        this.setState(
+            {
+                apple: this.getNewApplePoint(),
+                snake: {
+                    ...this.state.snake,
+                    head: this.getNewHeadPoint(),
+                    velocity: this.getRandomDirection()
+                }
+            },
+            () => {
+                this.gameLoop();
+            }
+        );
     };
 
     gameLoop = () => {
@@ -152,7 +165,7 @@ export default class Game extends Component {
         if (this.state.game_over) return;
 
         // Check for wall-hit Or self-collision
-        if (this.isWallHit() || this.isSelfCollision()) {
+        if (this.willHitWall() || this.isSelfCollision()) {
             this.setState({ game_over: true });
             return;
         }
@@ -180,28 +193,19 @@ export default class Game extends Component {
             },
             _ => {
                 // game timer manager
-                setTimeout(_ => this.gameLoop(), this.state.snake.speed * 300);
+                setTimeout(_ => this.gameLoop(), this.state.snake.speed * 400);
             }
         );
     };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            ...this.state,
-            apple: this.getNewApplePoint(),
-            snake: {
-                ...this.state.snake,
-                head: this.getNewHeadPoint()
-            }
-        };
-    }
 
     render() {
         const { rows, cols } = this.props;
 
         let getContents = () => {
             let contents = [];
+
+            if (this.state.game_over) contents.push(getGameOverMessage());
+
             for (let row = 0; row < rows; row++) {
                 contents.push(
                     <div className="row" key={row}>
@@ -211,6 +215,12 @@ export default class Game extends Component {
             }
             return contents;
         };
+
+        let getGameOverMessage = _ => (
+            <div id="gameOver_banner" key={"gameOver"}>
+                Game Over
+            </div>
+        );
 
         let getColumnData = row => {
             let contents = [];
