@@ -35,7 +35,7 @@ export default class Game extends Component {
         snake: {
             head: { x: 0, y: 0 },
             tail: [],
-            velocity: Directions.RIGHT,
+            velocity: [Directions.RIGHT],
             speed: this.props.speed
         }
     };
@@ -55,10 +55,10 @@ export default class Game extends Component {
     // Point out of center point in board
     isPointOutOfCenter = newPoint => {
         return (
-            newPoint.x > this.props.cols * (3 / 4) ||
-            newPoint.x < this.props.cols * (1 / 4) ||
-            newPoint.y > this.props.rows * (3 / 4) ||
-            newPoint.y < this.props.rows * (1 / 4)
+            newPoint.x > this.props.cols * (5 / 6) ||
+            newPoint.x < this.props.cols * (1 / 6) ||
+            newPoint.y > this.props.rows * (5 / 6) ||
+            newPoint.y < this.props.rows * (1 / 6)
         );
     };
 
@@ -66,12 +66,12 @@ export default class Game extends Component {
     getNewHeadPoint = () => {
         let newPoint = {
             x: this.randomVal(
-                this.props.cols * (1 / 4),
-                this.props.cols * (3 / 4)
+                this.props.cols * (1 / 6),
+                this.props.cols * (5 / 6)
             ),
             y: this.randomVal(
-                this.props.rows * (1 / 4),
-                this.props.rows * (3 / 4)
+                this.props.rows * (1 / 6),
+                this.props.rows * (5 / 6)
             )
         };
 
@@ -91,24 +91,29 @@ export default class Game extends Component {
             : newPoint;
     };
 
+    peekVelocity = () =>
+        this.state.snake.velocity[this.state.snake.velocity.length - 1];
+
+    getVelocity = () => this.state.snake.velocity[0]
+
     // Actions when key pressed by user
     KeyPressed = ev => {
-        const { snake } = this.state;
+        const lastVelocity = this.peekVelocity();
         switch (ev.keyCode) {
             case Keymaps.LEFT: // LEFT key
-                if (snake.velocity.x === 1) return;
+                if (lastVelocity.x === 1) return;
                 this.changeVelocity(Directions.LEFT);
                 break;
             case Keymaps.RIGHT: // RIGHT key
-                if (snake.velocity.x === -1) return;
+                if (lastVelocity.x === -1) return;
                 this.changeVelocity(Directions.RIGHT);
                 break;
             case Keymaps.UP: // UP key
-                if (snake.velocity.y === 1) return;
+                if (lastVelocity.y === 1) return;
                 this.changeVelocity(Directions.UP);
                 break;
             case Keymaps.DOWN: // DOWN key
-                if (snake.velocity.y === -1) return;
+                if (lastVelocity.y === -1) return;
                 this.changeVelocity(Directions.DOWN);
                 break;
             default:
@@ -120,18 +125,18 @@ export default class Game extends Component {
         this.setState(({ snake }) => ({
             snake: {
                 ...snake,
-                velocity: direction
+                velocity: [...snake.velocity, direction]
             }
         }));
     };
 
-    willHitWall = () => {
-        const { head, velocity } = this.state.snake;
+    isHitWall = () => {
+        const { head } = this.state.snake;
         return (
-            head.x + velocity.x < 0 ||
-            head.x + velocity.x > this.props.cols ||
-            head.y + velocity.y < 0 ||
-            head.y + velocity.y > this.props.rows
+            head.x < 0 ||
+            head.x > this.props.cols ||
+            head.y < 0 ||
+            head.y > this.props.rows
         );
     };
 
@@ -151,10 +156,10 @@ export default class Game extends Component {
                 snake: {
                     ...this.state.snake,
                     head: this.getNewHeadPoint(),
-                    velocity: this.getRandomDirection()
+                    velocity: [this.getRandomDirection()]
                 }
             },
-            () => {
+            _ => {
                 this.gameLoop();
             }
         );
@@ -165,7 +170,7 @@ export default class Game extends Component {
         if (this.state.game_over) return;
 
         // Check for wall-hit Or self-collision
-        if (this.willHitWall() || this.isSelfCollision()) {
+        if (this.isHitWall() || this.isSelfCollision()) {
             this.setState({ game_over: true });
             return;
         }
@@ -174,14 +179,15 @@ export default class Game extends Component {
         const isEating = this.isAppleEating();
 
         // Next snake step
+        const vel = this.getVelocity();
         this.setState(
             ({ snake, apple }) => {
                 const nextState = {
                     snake: {
                         ...snake,
                         head: {
-                            x: snake.head.x + snake.velocity.x,
-                            y: snake.head.y + snake.velocity.y
+                            x: snake.head.x + vel.x,
+                            y: snake.head.y + vel.y
                         },
                         tail: [snake.head, ...snake.tail]
                     },
@@ -189,11 +195,16 @@ export default class Game extends Component {
                 };
                 // If snake is eating then keep last tail-part else pop last tail-part
                 if (!isEating) nextState.snake.tail.pop();
+
+                // Check if new move there
+                if (nextState.snake.velocity.length > 1)
+                    nextState.snake.velocity.shift();
+
                 return nextState;
             },
             _ => {
                 // game timer manager
-                setTimeout(_ => this.gameLoop(), this.state.snake.speed * 400);
+                setTimeout(_ => this.gameLoop(), 200 / this.state.snake.speed);
             }
         );
     };
