@@ -35,7 +35,8 @@ export default class Game extends Component {
         snake: {
             head: { x: 0, y: 0 },
             tail: [],
-            velocity: [Directions.RIGHT],
+            direction: Directions.RIGHT,
+            nextDirection: Directions.RIGHT,
             speed: this.props.speed
         }
     };
@@ -94,38 +95,39 @@ export default class Game extends Component {
     peekVelocity = () =>
         this.state.snake.velocity[this.state.snake.velocity.length - 1];
 
-    getVelocity = () => this.state.snake.velocity[0]
+    getVelocity = () => this.state.snake.velocity[0];
 
     // Actions when key pressed by user
     KeyPressed = ev => {
-        const lastVelocity = this.peekVelocity();
+        if (this.state.game_over) return;
+        const { direction } = this.state.snake;
         switch (ev.keyCode) {
             case Keymaps.LEFT: // LEFT key
-                if (lastVelocity.x === 1) return;
-                this.changeVelocity(Directions.LEFT);
+                if (direction.x === 1) return;
+                this.changeDirection(Directions.LEFT);
                 break;
             case Keymaps.RIGHT: // RIGHT key
-                if (lastVelocity.x === -1) return;
-                this.changeVelocity(Directions.RIGHT);
+                if (direction.x === -1) return;
+                this.changeDirection(Directions.RIGHT);
                 break;
             case Keymaps.UP: // UP key
-                if (lastVelocity.y === 1) return;
-                this.changeVelocity(Directions.UP);
+                if (direction.y === 1) return;
+                this.changeDirection(Directions.UP);
                 break;
             case Keymaps.DOWN: // DOWN key
-                if (lastVelocity.y === -1) return;
-                this.changeVelocity(Directions.DOWN);
+                if (direction.y === -1) return;
+                this.changeDirection(Directions.DOWN);
                 break;
             default:
                 break;
         }
     };
 
-    changeVelocity = direction => {
+    changeDirection = direction => {
         this.setState(({ snake }) => ({
             snake: {
                 ...snake,
-                velocity: [...snake.velocity, direction]
+                nextDirection: direction
             }
         }));
     };
@@ -169,40 +171,35 @@ export default class Game extends Component {
         // Check if game is over then stop
         if (this.state.game_over) return;
 
-        // Check for wall-hit Or self-collision
-        if (this.isHitWall() || this.isSelfCollision()) {
-            this.setState({ game_over: true });
-            return;
-        }
-
         // Check for apple eating
         const isEating = this.isAppleEating();
 
         // Next snake step
-        const vel = this.getVelocity();
         this.setState(
             ({ snake, apple }) => {
                 const nextState = {
                     snake: {
                         ...snake,
                         head: {
-                            x: snake.head.x + vel.x,
-                            y: snake.head.y + vel.y
+                            x: snake.head.x + snake.nextDirection.x,
+                            y: snake.head.y + snake.nextDirection.y
                         },
-                        tail: [snake.head, ...snake.tail]
+                        tail: [snake.head, ...snake.tail],
+                        direction: snake.nextDirection
                     },
                     apple: isEating ? this.getNewApplePoint() : apple
                 };
                 // If snake is eating then keep last tail-part else pop last tail-part
                 if (!isEating) nextState.snake.tail.pop();
 
-                // Check if new move there
-                if (nextState.snake.velocity.length > 1)
-                    nextState.snake.velocity.shift();
-
                 return nextState;
             },
             _ => {
+                // Check for wall-hit Or self-collision
+                if (this.isHitWall() || this.isSelfCollision()) {
+                    this.setState({ game_over: true });
+                    return;
+                }
                 // game timer manager
                 setTimeout(_ => this.gameLoop(), 200 / this.state.snake.speed);
             }
