@@ -1,21 +1,13 @@
 import React, { Component } from "react";
 import { Directions, Keymaps } from "../Constants";
+import { randomVal, getRandomXnY, isEqualPoints } from "../Common";
 import "./Game.css";
 
 export default class Game extends Component {
-    randomVal = (min, max) => Math.floor(Math.random() * (max - min) + min);
-
-    getRandomXnY = _ => ({
-        x: this.randomVal(0, this.props.cols),
-        y: this.randomVal(0, this.props.rows)
-    });
-
-    // Checks points equality
-    isEqualPoints = (Obj1, Obj2) => Obj1.x === Obj2.x && Obj1.y === Obj2.y;
 
     // Generate random direction
-    getRandomDirection = () => {
-        const i = this.randomVal(0, 3);
+    getRandomDirection = _ => {
+        const i = randomVal(0, 3);
         switch (i) {
             case 0:
                 return Directions.LEFT;
@@ -42,35 +34,36 @@ export default class Game extends Component {
     };
 
     // Is cell points equal to snake head
-    isHead = cell => this.isEqualPoints(this.state.snake.head, cell);
+    isHead = cell => isEqualPoints(this.state.snake.head, cell);
 
     // Is cell points equal to apple
-    isApple = cell => this.isEqualPoints(this.state.apple, cell);
+    isApple = cell => isEqualPoints(this.state.apple, cell);
 
     // Is cell points includes in Tail of snake
     isTail = cell =>
         this.state.snake.tail.find(tailPart =>
-            this.isEqualPoints(tailPart, cell)
+            isEqualPoints(tailPart, cell)
         );
 
-    // Point out of center point in board
+    // Is point out of center in board
     isPointOutOfCenter = newPoint => {
+        let max = (5 / 6), min = (1 / 6);
         return (
-            newPoint.x > this.props.cols * (5 / 6) ||
-            newPoint.x < this.props.cols * (1 / 6) ||
-            newPoint.y > this.props.rows * (5 / 6) ||
-            newPoint.y < this.props.rows * (1 / 6)
+            newPoint.x > this.props.cols * max ||
+            newPoint.x < this.props.cols * min ||
+            newPoint.y > this.props.rows * max ||
+            newPoint.y < this.props.rows * min
         );
     };
 
     // Generate intial snake start
-    getNewHeadPoint = () => {
+    getNewHeadPoint = _ => {
         let newPoint = {
-            x: this.randomVal(
+            x: randomVal(
                 this.props.cols * (1 / 6),
                 this.props.cols * (5 / 6)
             ),
-            y: this.randomVal(
+            y: randomVal(
                 this.props.rows * (1 / 6),
                 this.props.rows * (5 / 6)
             )
@@ -83,19 +76,14 @@ export default class Game extends Component {
     };
 
     // Generate new points for next apple
-    getNewApplePoint = () => {
-        let newPoint = this.getRandomXnY();
+    getNewApplePoint = _ => {
+        let newPoint = getRandomXnY(this.props.cols, this.props.rows);
 
         // Check is apple's new point is part of snake
         return this.isTail(newPoint) || this.isHead(newPoint)
             ? this.getNewApplePoint()
             : newPoint;
     };
-
-    peekVelocity = () =>
-        this.state.snake.velocity[this.state.snake.velocity.length - 1];
-
-    getVelocity = () => this.state.snake.velocity[0];
 
     // Actions when key pressed by user
     KeyPressed = ev => {
@@ -132,22 +120,26 @@ export default class Game extends Component {
         }));
     };
 
-    isHitWall = () => {
-        const { head } = this.state.snake;
+    willHitWall = _ => {
+        const { head, nextDirection } = this.state.snake;
+        let newHeadLocation = {
+            x: head.x + nextDirection.x,
+            y: head.y + nextDirection.y
+        }
         return (
-            head.x < 0 ||
-            head.x > this.props.cols ||
-            head.y < 0 ||
-            head.y > this.props.rows
+            newHeadLocation.x < 0 ||
+            newHeadLocation.x >= this.props.cols ||
+            newHeadLocation.y < 0 ||
+            newHeadLocation.y >= this.props.rows
         );
     };
 
-    isSelfCollision = () => this.isTail(this.state.snake.head);
+    isSelfCollision = _ => this.isTail(this.state.snake.head);
 
-    isAppleEating = () =>
-        this.isEqualPoints(this.state.apple, this.state.snake.head);
+    isAppleEating = _ =>
+        isEqualPoints(this.state.apple, this.state.snake.head);
 
-    componentDidMount = () => {
+    componentDidMount = _ => {
         document.addEventListener("keydown", e => {
             this.KeyPressed(e);
         });
@@ -167,12 +159,18 @@ export default class Game extends Component {
         );
     };
 
-    gameLoop = () => {
+    gameLoop = _ => {
         // Check if game is over then stop
         if (this.state.game_over) return;
 
         // Check for apple eating
-        const isEating = this.isAppleEating();
+        const isAppleEating = this.isAppleEating();
+
+        // Check for wall-hit Or self-collision
+        if (this.willHitWall() || this.isSelfCollision()) {
+            this.setState({ game_over: true });
+            return;
+        }
 
         // Next snake step
         this.setState(
@@ -187,19 +185,18 @@ export default class Game extends Component {
                         tail: [snake.head, ...snake.tail],
                         direction: snake.nextDirection
                     },
-                    apple: isEating ? this.getNewApplePoint() : apple
+                    apple: isAppleEating ? this.getNewApplePoint() : apple
                 };
                 // If snake is eating then keep last tail-part else pop last tail-part
-                if (!isEating) nextState.snake.tail.pop();
+                isAppleEating
+                    ? this.props.increaseCurrentScore(5)
+                    : nextState.snake.tail.pop();
 
                 return nextState;
             },
             _ => {
-                // Check for wall-hit Or self-collision
-                if (this.isHitWall() || this.isSelfCollision()) {
-                    this.setState({ game_over: true });
-                    return;
-                }
+
+
                 // game timer manager
                 setTimeout(_ => this.gameLoop(), 200 / this.state.snake.speed);
             }
@@ -209,7 +206,7 @@ export default class Game extends Component {
     render() {
         const { rows, cols } = this.props;
 
-        let getContents = () => {
+        let getContents = _ => {
             let contents = [];
 
             if (this.state.game_over) contents.push(getGameOverMessage());
@@ -245,11 +242,11 @@ export default class Game extends Component {
                     this.isHead({ x, y })
                         ? "head"
                         : this.isApple({ x, y })
-                        ? "apple"
-                        : this.isTail({ x, y })
-                        ? "tail"
-                        : ""
-                }`}
+                            ? "apple"
+                            : this.isTail({ x, y })
+                                ? "tail"
+                                : ""
+                    }`}
             />
         );
 

@@ -1,25 +1,41 @@
 .row {
     display: flex;
-    flex: 1;
 }
 
 .cell {
     width: 20px;
     height: 20px;
-    flex: 1;
-    border: 1px solid black;
+}
+
+.row:nth-of-type(odd) .cell:nth-of-type(odd) {
+    background-color: #a2d149
+}
+
+.row:nth-of-type(odd) .cell:nth-of-type(even) {
+    background-color: #aad751
+}
+
+.row:nth-of-type(even) .cell:nth-of-type(odd) {
+    background-color: #aad751
+}
+
+.row:nth-of-type(even) .cell:nth-of-type(even) {
+    background-color: #a2d149
 }
 
 .head {
-    background: rgb(153, 0, 255);
+    background-color: rgb(153, 0, 255) !important;
 }
 
 .tail {
-    background: rgb(216, 157, 255);
+    background-color: rgb(216, 157, 255) !important;
+    transition: all 1s;
+    /*transition cause performance problem: longer the snake lesser performance */
 }
 
 .apple {
-    background-color: red;
+    background-image: url(../../assets/image/apple.png) !important;
+    background-size: contain;
 }
 
 @media screen and (max-width: 480px) {
