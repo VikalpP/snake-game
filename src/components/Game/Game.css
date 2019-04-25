@@ -3,24 +3,24 @@
 }
 
 .cell {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 }
 
 .row:nth-of-type(odd) .cell:nth-of-type(odd) {
-    background-color: #a2d149
+    background-color: #aad751
 }
 
 .row:nth-of-type(odd) .cell:nth-of-type(even) {
-    background-color: #aad751
+    background-color: #a2d149
 }
 
 .row:nth-of-type(even) .cell:nth-of-type(odd) {
-    background-color: #aad751
+    background-color: #a2d149
 }
 
 .row:nth-of-type(even) .cell:nth-of-type(even) {
-    background-color: #a2d149
+    background-color: #aad751
 }
 
 .head {
@@ -34,13 +34,15 @@
 }
 
 .apple {
-    background-image: url(../../assets/image/apple.png) !important;
+    background-image: url(../../assets/image/apple_24px.png) !important;
     background-size: contain;
 }
 
-@media screen and (max-width: 480px) {
+/* For Smaller Screen */
+@media screen and (max-width: 520px),
+(max-height: 592px) {
     .cell {
-        width: 10px;
-        height: 10px;
+        width: 16px;
+        height: 16px;
     }
 }

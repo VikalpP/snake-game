@@ -12,3 +12,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.btn-rounded {
+  border-radius: 16px;
+}
+
+.btn-normal {
+  background: #1172c4;
+  border: none;
+  padding: 10px;
+  color: #eeeeee;
+
+}
