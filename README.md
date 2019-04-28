@@ -31,10 +31,10 @@ It'll open [http://localhost:3000/](http://localhost:3000/) and take a look arou
 
 ## TODOs
 
-* [ ] Display Score
-* [ ] deploy it on github.io or netlify.com
+* [x] Display Score
+* [x] deploy it on github.io or netlify.com
 * [ ] Make user sign-in to keep best score
 * [ ] Dashboard to show all user's highscore
 * [ ] make levels in game (like, increase speed by each 5 eats ) 
-* [ ] Rewards random based atleast 5 eats (in reward short snake)
+* [x] Rewards random based atleast 5 eats (in reward short snake)
 * [ ] test code 

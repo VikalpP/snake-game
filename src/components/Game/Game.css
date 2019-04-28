@@ -1,3 +1,8 @@
+.game-container{
+  border: 8px solid #a2d149;
+  border-radius: 8px;
+}
+
 .row {
     display: flex;
 }
@@ -8,23 +13,24 @@
 }
 
 .row:nth-of-type(odd) .cell:nth-of-type(odd) {
-    background-color: #aad751
+    background-color: #aad751;
 }
 
 .row:nth-of-type(odd) .cell:nth-of-type(even) {
-    background-color: #a2d149
+    background-color: #a2d149;
 }
 
 .row:nth-of-type(even) .cell:nth-of-type(odd) {
-    background-color: #a2d149
+    background-color: #a2d149;
 }
 
 .row:nth-of-type(even) .cell:nth-of-type(even) {
-    background-color: #aad751
+    background-color: #aad751;
 }
 
 .head {
     background-color: rgb(153, 0, 255) !important;
+    z-index: 100;
 }
 
 .tail {
@@ -38,11 +44,81 @@
     background-size: contain;
 }
 
+.strawberry {
+    background-image: url(../../assets/image/strawberry_24px.png) !important;
+    background-size: contain;
+}
+
 /* For Smaller Screen */
-@media screen and (max-width: 520px),
-(max-height: 592px) {
+@media screen and (max-width: 520px), (max-height: 592px) {
     .cell {
         width: 16px;
         height: 16px;
+    }
+}
+
+.circle-timer,
+.circle-timer * {
+    box-sizing: border-box;
+}
+
+.circle-timer {
+    position: relative;
+    background: inherit;
+    width: 100%;
+    height: 100%;
+}
+
+.circle-timer .half {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    transform-origin: 100% 50%;
+    background: #08c;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.circle-timer .spinner {
+    z-index: 20;
+    border-radius: 100% 0 0 100% / 50% 0 0 50%;
+    border-right: none;
+    animation: rotating 5s linear forwards;
+}
+
+.circle-timer .filler {
+    left: 50%;
+    opacity: 0;
+    z-index: 10;
+    border-radius: 0 100% 100% 0 / 0 50% 50% 0;
+    border-left: none;
+    animation: fadeOut 5s steps(1, end) forwards reverse;
+}
+
+.circle-timer .mask {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    opacity: 1;
+    background: inherit;
+    background-size: cover;
+    z-index: 30;
+    animation: fadeOut 5s steps(1, end) forwards;
+}
+
+@keyframes rotating {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    50%,
+    100% {
+        opacity: 0;
     }
 }
