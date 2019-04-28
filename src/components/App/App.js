@@ -39,8 +39,10 @@ class App extends Component {
         return (
             <div className="App">
                 <div id="Scorebar">
-                    <Score currentScore={this.state.currentScore} 
-                    snake_length={this.state.snake_length}/>
+                    <Score
+                        currentScore={this.state.currentScore}
+                        snake_length={this.state.snake_length}
+                    />
                 </div>
                 <div className="game-space">
                     {/* Add Game Over Message over game space */}
@@ -48,6 +50,7 @@ class App extends Component {
                         <GameOver
                             currentScore={this.state.currentScore}
                             playAgain={this.playAgain}
+                            snake_length={this.state.snake_length}
                         />
                     )}
 

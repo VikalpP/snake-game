@@ -3,7 +3,7 @@ import './GameOver.css'
 import Score from '../Score/Score'
 import imgSnake from '../../assets/image/snake.png'
 
-export default function GameOver({ currentScore, playAgain }) {
+export default function GameOver({ currentScore, playAgain,snake_length }) {
     return (
         <div id="gameOver-dialog">
             <div className="container">
@@ -19,7 +19,7 @@ export default function GameOver({ currentScore, playAgain }) {
                         </svg>
 
                         <div className="content">
-                            <Score currentScore={currentScore} />
+                            <Score currentScore={currentScore} snake_length={snake_length} />
                             <button className="btn-rounded btn-normal btn-tryAgain" onClick={playAgain}>
                                 Play Again?
                             </button>
