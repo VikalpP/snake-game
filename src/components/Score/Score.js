@@ -4,7 +4,7 @@ import imgApple from "../../assets/image/apple_64px.png";
 import imgTrophy from "../../assets/image/trophy_64px.png";
 import imgSnake_logo from "../../assets/image/snake_logo_64px.png";
 
-export default function Score({ currentScore, snake_length }) {
+export default function Score({ currentScore,bestScore, snake_length }) {
     return (
         <div id="scores-container">
             <div className="score currentScore">
@@ -13,7 +13,7 @@ export default function Score({ currentScore, snake_length }) {
             </div>
             <div className="score bestScore">
                 <img src={imgTrophy} alt="Trophy" />
-                <span>{currentScore}</span>
+                <span>{bestScore}</span>
             </div>
             <div className="score snake-length">
                 <img src={imgSnake_logo} alt="Snake length" />

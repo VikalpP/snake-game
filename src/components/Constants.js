@@ -11,3 +11,5 @@ export const Keymaps = {
     RIGHT: 39,
     DOWN: 40
 };
+
+export const noPoint = { x: -1, y: -1 }

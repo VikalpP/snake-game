@@ -2,18 +2,31 @@ import React, { Component } from "react";
 import Game from "../Game/Game";
 import Score from "../Score/Score";
 import GameOver from "../GameOver/GameOver";
+import Dashboard from "../Dashboard/Dashboard";
 import "./App.css";
 
 class App extends Component {
     initState = {
         currentScore: 0,
+        bestScore: 0,
         game_over: false,
         snake_length: 0
     };
     state = this.initState;
 
     increaseCurrentScore = point => {
-        this.setState({ currentScore: this.state.currentScore + point });
+        this.setState({ currentScore: this.state.currentScore + point }, _ => {
+            this.check_For_BestScore();
+        });
+    };
+
+    check_For_BestScore = _ => {
+        const { bestScore, currentScore } = this.state;
+        if (bestScore < currentScore) {
+            this.setState({ bestScore: currentScore }, _ => {
+                window.localStorage.setItem("bestScore", this.state.bestScore);
+            });
+        }
     };
 
     do_gameOver = _ => {
@@ -22,9 +35,11 @@ class App extends Component {
 
     isGameOver = _ => this.state.game_over;
 
+    startGame = _ => this.GameComponent.current.resetGame();
+
     playAgain = _ => {
         this.setState({ ...this.initState }, _ => {
-            this.GameComponent.current.resetGame();
+            this.startGame();
         });
     };
 
@@ -35,12 +50,19 @@ class App extends Component {
         this.GameComponent = React.createRef();
     }
 
+    componentDidMount() {
+        let storage = window.localStorage;
+        let bestScore = storage.getItem("bestScore");
+        if (bestScore) this.setState({ bestScore });
+    }
+
     render() {
         return (
             <div className="App">
                 <div id="Scorebar">
                     <Score
                         currentScore={this.state.currentScore}
+                        bestScore={this.state.bestScore}
                         snake_length={this.state.snake_length}
                     />
                 </div>
@@ -49,9 +71,14 @@ class App extends Component {
                     {this.state.game_over && (
                         <GameOver
                             currentScore={this.state.currentScore}
+                            bestScore={this.state.bestScore}
                             playAgain={this.playAgain}
                             snake_length={this.state.snake_length}
                         />
+                    )}
+
+                    {this.state.snake_length === 0 && (
+                        <Dashboard startGame={this.startGame} />
                     )}
 
                     <Game

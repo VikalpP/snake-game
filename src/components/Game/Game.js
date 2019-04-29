@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Directions, Keymaps } from "../Constants";
+import { Directions, Keymaps, noPoint } from "../Constants";
 import {
     randomVal,
     getRandomXnY,
@@ -10,15 +10,15 @@ import "./Game.css";
 
 export default class Game extends Component {
     state = {
-        apple: { x: 0, y: 0 },
+        apple: noPoint,
         snake: {
-            head: { x: 0, y: 0 },
+            head: noPoint,
             tail: [],
             direction: Directions.RIGHT,
             nextDirection: Directions.RIGHT,
             speed: 200 / this.props.speed
         },
-        strawberry: { x: -1, y: -1 }
+        strawberry: noPoint
     };
 
     componentDidMount = _ => {
@@ -26,7 +26,7 @@ export default class Game extends Component {
         document.addEventListener("keydown", this.KeyPressed);
 
         // Reset the Game as initial configurations
-        this.resetGame();
+        //this.resetGame();
     };
 
     // Is cell points equal to snake head
@@ -163,9 +163,7 @@ export default class Game extends Component {
                         direction: snake.nextDirection
                     },
                     apple: isAppleEating ? this.getNewFruitPoint() : apple,
-                    strawberry: isStrawberryEating
-                        ? { x: -1, y: -1 }
-                        : strawberry
+                    strawberry: isStrawberryEating ? noPoint : strawberry
                 };
                 // If snake is eating then keep last tail-part else pop last tail-part
                 isAppleEating
@@ -185,14 +183,12 @@ export default class Game extends Component {
                 );
                 // Every time snake gain 5 more tail parts add Randomly a Strawberry
                 if (
+                    this.isStrawberry(noPoint) &&
                     Math.random() > 0.5 &&
-                    this.isStrawberry({ x: -1, y: -1 }) &&
                     this.state.snake.tail.length % 5 === 4
                 ) {
                     this.setState(
-                        {
-                            strawberry: this.getNewFruitPoint()
-                        },
+                        { strawberry: this.getNewFruitPoint() },
                         _ => {
                             // 5 seconds to eat strawberry else disappear
                             setTimeout(this.makeDisappear_Strawberry, 5000);
@@ -206,9 +202,9 @@ export default class Game extends Component {
     };
 
     makeDisappear_Strawberry = _ => {
-        if (!this.isStrawberry({ x: -1, y: -1 }))
+        if (!this.isStrawberry(noPoint))
             this.setState({
-                strawberry: { x: -1, y: -1 }
+                strawberry: noPoint
             });
     };
 
