@@ -1,6 +1,11 @@
 # Snake Game
 A Snake game using React
 
+### Take a quick look - https://snake-game-reactapp.netlify.app/
+
+![Screen Recording 2021-11-23 at 12 27 36 PM](https://user-images.githubusercontent.com/11846339/142990309-e15e9abf-f93a-4768-9268-0e50db58522d.gif)
+
+
 ## Requirements
 
 * Node 8+
